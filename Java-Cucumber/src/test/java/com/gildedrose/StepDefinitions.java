@@ -1,18 +1,19 @@
 package com.gildedrose;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class StepDefinitions {
-    private Item[] items = new Item[1];
+    private final Item[] items = new Item[1];
     private GildedRose app;
 
-    @Given("The item as {string}")
-    public void initial_sellin_is_and_quality_is(String name) {
-        items[0] = new Item(name, 0, 0);
+    @Given("The item as {string} with initial sellin {int} and quality {int}")
+    public void theItemAsWithInitialSellinAndQuality(String name, int sellin, int quality) {
+        items[0] = new Item(name, sellin, quality);
         app = new GildedRose(items);
     }
 
@@ -21,9 +22,12 @@ public class StepDefinitions {
         app.updateQuality();
     }
 
-    @Then("I should get item as {string}")
-    public void i_should_get_sellin_as_and_quality_as(String expected) {
-        assertEquals(expected, app.items[0].name);
+    @Then("I should get sellin as {int} and quality as {int}")
+    public void iShouldGetSellinAsAndQualityAs(int sellin, int quality) {
+        assertAll(
+                () ->  assertEquals(sellin, app.items[0].sellIn),
+                () ->  assertEquals(quality, app.items[0].quality)
+        );
     }
 }
 
