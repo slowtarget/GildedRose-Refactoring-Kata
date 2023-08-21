@@ -16,6 +16,7 @@ Feature: Gilded Rose quality
     Examples: The Quality of an item is never negative
       | name                                       | iSellin | iQuality | eSellin | eQuality |
       | +5 Dexterity Vest                          |       0 |        0 |      -1 |        0 |
+      | +5 Dexterity Vest | -1      | 1        | -2      | 0        |
 
     Examples: "Aged Brie" actually increases in Quality the older it gets
       | name                                       | iSellin | iQuality | eSellin | eQuality |
