@@ -11,7 +11,7 @@ public class StepDefinitions {
     private final Item[] items = new Item[1];
     private GildedRose app;
 
-    @Given("The item as {string} with initial sellin {int} and quality {int}")
+    @Given("{string} with initial sellin {int} and quality {int}")
     public void theItemAsWithInitialSellinAndQuality(String name, int sellin, int quality) {
         items[0] = new Item(name, sellin, quality);
         app = new GildedRose(items);
