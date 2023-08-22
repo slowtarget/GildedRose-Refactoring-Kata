@@ -51,13 +51,7 @@ public enum ItemType {
             if (item.sellIn < 0) {
                 return 0;
             }
-            if (item.sellIn < 5) {
-                return item.quality + 3;
-            }
-            if (item.sellIn < 10) {
-                return item.quality + 2;
-            }
-            return item.quality + 1;
+            return item.quality + Math.max(1, (19 - item.sellIn) / 5);
         };
         private static final Function<Item, Integer> UPDATE_BRIE_QUALITY = (Item item) -> item.quality + 1;
         private static final Function<Item, Integer> UPDATE_QUALITY = (Item item) -> {
