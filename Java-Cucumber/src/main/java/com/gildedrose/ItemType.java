@@ -55,11 +55,13 @@ public enum ItemType {
         };
         private static final Function<Item, Integer> UPDATE_BRIE_QUALITY = (Item item) -> item.quality + 1;
         private static final Function<Item, Integer> UPDATE_QUALITY = (Item item) -> {
+            final int depreciation;
             if (item.sellIn > 0) {
-                return item.quality - 1;
+                depreciation = 1;
             } else {
-                return item.quality - 2;
+                depreciation = 2;
             }
+            return item.quality - depreciation;
         };
     }
 }
