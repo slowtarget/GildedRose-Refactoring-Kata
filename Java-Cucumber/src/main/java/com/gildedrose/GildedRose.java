@@ -1,5 +1,10 @@
 package com.gildedrose;
 
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 class GildedRose {
     Item[] items;
 
@@ -8,55 +13,95 @@ class GildedRose {
     }
 
     public void updateQuality() {
-        for (int i = 0; i < items.length; i++) {
-            if (!items[i].name.equals("Aged Brie")
-                    && !items[i].name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-                if (items[i].quality > 0) {
-                    if (!items[i].name.equals("Sulfuras, Hand of Ragnaros")) {
-                        items[i].quality = items[i].quality - 1;
-                    }
-                }
-            } else {
-                if (items[i].quality < 50) {
-                    items[i].quality = items[i].quality + 1;
+        Arrays.stream(items).forEach(this::updateItem);
+    }
 
-                    if (items[i].name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-                        if (items[i].sellIn < 11) {
-                            if (items[i].quality < 50) {
-                                items[i].quality = items[i].quality + 1;
-                            }
-                        }
+    private void updateItem(Item item) {
+        Optional.of(item)
+                .filter(not(this::isSulfuras))
+                .ifPresent(this::decreaseSellIn);
 
-                        if (items[i].sellIn < 6) {
-                            if (items[i].quality < 50) {
-                                items[i].quality = items[i].quality + 1;
-                            }
-                        }
-                    }
-                }
-            }
+        Optional.of(item)
+                .filter(not(this::isSulfuras))
+                .filter(not(this::isAgedBrie))
+                .filter(not(this::isBackstagePasses))
+                .filter(this::hasPositiveQuality)
+                .ifPresent(this::decreaseQuality);
 
-            if (!items[i].name.equals("Sulfuras, Hand of Ragnaros")) {
-                items[i].sellIn = items[i].sellIn - 1;
-            }
+        Optional.of(item)
+                .filter(this::isAgedBrie)
+                .filter(this::hasQualityBelow50)
+                .ifPresent(this::increaseQuality);
 
-            if (items[i].sellIn < 0) {
-                if (!items[i].name.equals("Aged Brie")) {
-                    if (!items[i].name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-                        if (items[i].quality > 0) {
-                            if (!items[i].name.equals("Sulfuras, Hand of Ragnaros")) {
-                                items[i].quality = items[i].quality - 1;
-                            }
-                        }
-                    } else {
-                        items[i].quality = items[i].quality - items[i].quality;
-                    }
-                } else {
-                    if (items[i].quality < 50) {
-                        items[i].quality = items[i].quality + 1;
-                    }
-                }
-            }
+        Optional.of(item)
+                .filter(this::isBackstagePasses)
+                .filter(this::hasQualityBelow50)
+                .ifPresent(this::increaseQualityByBackstageRules);
+
+        Optional.of(item)
+                .filter(not(this::isSulfuras))
+                .filter(i -> i.sellIn < 0)
+                .filter(not(this::isAgedBrie))
+                .filter(not(this::isBackstagePasses))
+                .filter(this::hasPositiveQuality)
+                .ifPresent(this::decreaseQuality);
+
+        Optional.of(item)
+                .filter(i -> i.sellIn < 0)
+                .filter(this::isAgedBrie)
+                .filter(this::hasQualityBelow50)
+                .ifPresent(this::increaseQuality);
+
+        Optional.of(item)
+                .filter(i -> i.sellIn < 0)
+                .filter(this::isBackstagePasses)
+                .ifPresent(i -> i.quality = 0);
+    }
+
+    private boolean isSulfuras(Item item) {
+        return item.name.equals("Sulfuras, Hand of Ragnaros");
+    }
+
+    private boolean isAgedBrie(Item item) {
+        return item.name.equals("Aged Brie");
+    }
+
+    private boolean isBackstagePasses(Item item) {
+        return item.name.equals("Backstage passes to a TAFKAL80ETC concert");
+    }
+
+    private boolean hasPositiveQuality(Item item) {
+        return item.quality > 0;
+    }
+
+    private boolean hasQualityBelow50(Item item) {
+        return item.quality < 50;
+    }
+
+    private void decreaseSellIn(Item item) {
+        item.sellIn--;
+    }
+
+    private void decreaseQuality(Item item) {
+        item.quality--;
+    }
+
+    private void increaseQuality(Item item) {
+        item.quality++;
+    }
+
+    private void increaseQualityByBackstageRules(Item item) {
+        increaseQuality(item);
+        if (item.sellIn < 11) {
+            increaseQuality(item);
         }
+        if (item.sellIn < 6) {
+            increaseQuality(item);
+        }
+    }
+
+    // A helper method that returns the negation of a predicate
+    private static <T> Predicate<T> not(Predicate<T> predicate) {
+        return predicate.negate();
     }
 }
