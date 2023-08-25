@@ -18,64 +18,64 @@ class GildedRose {
 
     private void updateItem(Item item) {
         Optional.of(item)
-                .filter(not(this::isSulfuras))
+                .filter(not(isSulfuras()))
                 .ifPresent(this::decreaseSellIn);
 
         Optional.of(item)
-                .filter(not(this::isSulfuras))
-                .filter(not(this::isAgedBrie))
-                .filter(not(this::isBackstagePasses))
-                .filter(this::hasPositiveQuality)
+                .filter(not(isSulfuras()))
+                .filter(not(isAgedBrie()))
+                .filter(not(isBackstagePasses()))
+                .filter(hasPositiveQuality())
                 .ifPresent(this::decreaseQuality);
 
         Optional.of(item)
-                .filter(this::isAgedBrie)
-                .filter(this::hasQualityBelow50)
+                .filter(isAgedBrie())
+                .filter(hasQualityBelow50())
                 .ifPresent(this::increaseQuality);
 
         Optional.of(item)
-                .filter(this::isBackstagePasses)
-                .filter(this::hasQualityBelow50)
+                .filter(isBackstagePasses())
+                .filter(hasQualityBelow50())
                 .ifPresent(this::increaseQualityByBackstageRules);
 
         Optional.of(item)
-                .filter(not(this::isSulfuras))
+                .filter(not(isSulfuras()))
                 .filter(i -> i.sellIn < 0)
-                .filter(not(this::isAgedBrie))
-                .filter(not(this::isBackstagePasses))
-                .filter(this::hasPositiveQuality)
+                .filter(not(isAgedBrie()))
+                .filter(not(isBackstagePasses()))
+                .filter(hasPositiveQuality())
                 .ifPresent(this::decreaseQuality);
 
         Optional.of(item)
                 .filter(i -> i.sellIn < 0)
-                .filter(this::isAgedBrie)
-                .filter(this::hasQualityBelow50)
+                .filter(isAgedBrie())
+                .filter(hasQualityBelow50())
                 .ifPresent(this::increaseQuality);
 
         Optional.of(item)
                 .filter(i -> i.sellIn < 0)
-                .filter(this::isBackstagePasses)
+                .filter(isBackstagePasses())
                 .ifPresent(i -> i.quality = 0);
     }
 
-    private boolean isSulfuras(Item item) {
-        return item.name.equals("Sulfuras, Hand of Ragnaros");
+    private Predicate<Item> isSulfuras() {
+        return item -> item.name.equals("Sulfuras, Hand of Ragnaros");
     }
 
-    private boolean isAgedBrie(Item item) {
-        return item.name.equals("Aged Brie");
+    private Predicate<Item> isAgedBrie() {
+        return item -> item.name.equals("Aged Brie");
     }
 
-    private boolean isBackstagePasses(Item item) {
-        return item.name.equals("Backstage passes to a TAFKAL80ETC concert");
+    private Predicate<Item> isBackstagePasses() {
+        return item -> item.name.equals("Backstage passes to a TAFKAL80ETC concert");
     }
 
-    private boolean hasPositiveQuality(Item item) {
-        return item.quality > 0;
+    private Predicate<Item> hasPositiveQuality() {
+        return item -> item.quality > 0;
     }
 
-    private boolean hasQualityBelow50(Item item) {
-        return item.quality < 50;
+    private Predicate<Item> hasQualityBelow50() {
+        return item -> item.quality < 50;
     }
 
     private void decreaseSellIn(Item item) {
