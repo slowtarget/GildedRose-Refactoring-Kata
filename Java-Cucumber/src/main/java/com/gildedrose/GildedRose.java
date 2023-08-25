@@ -1,6 +1,7 @@
 package com.gildedrose;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 class GildedRose {
     Item[] items;
@@ -10,35 +11,19 @@ class GildedRose {
     }
 
     public void updateQuality() {
-        Arrays.stream(items).forEach(item -> ItemType.handleusingchain(item));
+        Arrays.stream(items).forEach(item -> ItemType.updateItem(item));
     }
 }
 
 // An enum that defines the behaviour of different item types
 enum ItemType {
-    Sulfuras {
+    Sulfuras(item -> item.name.equals("Sulfuras, Hand of Ragnaros")) {
         @Override
         public void update(Item item) {
             // Do nothing, sulfuras never changes
         }
-
-        @Override
-        public boolean matches(Item item) {
-            return item.name.equals("Sulfuras, Hand of Ragnaros");
-        }
-
-        @Override
-        public void handle(Item item) {
-           if (matches(item)) {
-               update(item);
-           } else {
-               AgedBrie.handle(item);
-           }
-        }
-
-
     },
-    AgedBrie {
+    AgedBrie(item -> item.name.equals("Aged Brie")) {
         @Override
         public void update(Item item) {
             // Increase the quality by 1 or 2 depending on the sell in value
@@ -46,22 +31,8 @@ enum ItemType {
             // Decrease the sell in value by 1
             item.sellIn--;
         }
-
-        @Override
-        public boolean matches(Item item) {
-            return item.name.equals("Aged Brie");
-        }
-
-        @Override
-        public void handle(Item item) {
-            if (matches(item)) {
-                update(item);
-            } else {
-                BackstagePasses.handle(item);
-            }
-        }
     },
-    BackstagePasses {
+    BackstagePasses(item -> item.name.equals("Backstage passes to a TAFKAL80ETC concert")) {
         @Override
         public void update(Item item) {
             // Increase the quality by 1, 2, or 3 depending on the sell in value
@@ -80,22 +51,8 @@ enum ItemType {
             // Decrease the sell in value by 1
             item.sellIn--;
         }
-
-        @Override
-        public boolean matches(Item item) {
-            return item.name.equals("Backstage passes to a TAFKAL80ETC concert");
-        }
-
-        @Override
-        public void handle(Item item) {
-            if (matches(item)) {
-                update(item);
-            } else {
-                Other.handle(item);
-            }
-        }
     },
-    Other {
+    Other(item -> true) { // Default case for any other item name
         @Override
         public void update(Item item) {
             // Decrease the quality by 1 or 2 depending on the sell in value
@@ -103,31 +60,32 @@ enum ItemType {
             // Decrease the sell in value by 1
             item.sellIn--;
         }
-
-        @Override
-        public boolean matches(Item item) {
-            return true;
-        }
-
-        @Override
-        public void handle(Item item) {
-            update(item);
-        }
     };
 
-    public static void handleusingchain(Item item) {
-        Sulfuras.handle(item);
+    private Predicate<Item> matcher; // A predicate that checks if an item matches the enum constant
+
+    private ItemType(Predicate<Item> matcher) {
+        this.matcher = matcher;
     }
 
-    //An abstract method that each enum constant must implement
-    public abstract void update(Item item);
+    //A method that each enum constant can override
+    public void update(Item item) {
+        // Decrease the quality by 1 or 2 depending on the sell in value
+        item.quality = coerce(0, 50, item.quality - (item.sellIn <= 0 ? 2 : 1));
+        // Decrease the sell in value by 1
+        item.sellIn--;
+    }
 
-    // An abstract method that each enum constant must implement to return a boolean that checks if an item matches the enum constant
-    public abstract boolean matches(Item item);
+    // A static method that updates an item using the enum constant that matches its name or the default one
+    public static void updateItem(Item item) {
+        Arrays.stream(values())
+                .filter(it -> it.matcher.test(item))
+                .findFirst()
+                .orElse(Other)
+                .update(item);
+    }
 
     private static int coerce(int min, int max, int value) {
         return Math.max(min, Math.min(max, value));
     }
-
-    public abstract void handle(Item item);
 }
