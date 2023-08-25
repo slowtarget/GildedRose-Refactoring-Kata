@@ -32,7 +32,6 @@ public enum ItemType {
 
     public int getQuality(final Item item) {
         int quality = this.updateQuality.apply(item);
-
         return Math.min(Math.max(quality, 0), maximum);
     }
 
@@ -53,10 +52,19 @@ public enum ItemType {
             }
             return item.quality + Math.max(1, (19 - item.sellIn) / 5);
         };
-        private static final Function<Item, Integer> UPDATE_BRIE_QUALITY = (Item item) -> item.quality + 1;
+        private static final Function<Item, Integer> UPDATE_BRIE_QUALITY = (Item item) -> {
+            final int appreciation;
+            if (item.sellIn >= 0) {
+                appreciation = 1;
+            } else {
+                appreciation = 2;
+            }
+            return item.quality + appreciation;
+        };
         private static final Function<Item, Integer> UPDATE_QUALITY = (Item item) -> {
+
             final int depreciation;
-            if (item.sellIn > 0) {
+            if (item.sellIn >= 0) {
                 depreciation = 1;
             } else {
                 depreciation = 2;

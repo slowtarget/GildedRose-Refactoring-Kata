@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestFixture {
+public class TextFixtureTest {
 
     public static void main(String[] args) throws IOException {
         // run this to regenerate the template files
