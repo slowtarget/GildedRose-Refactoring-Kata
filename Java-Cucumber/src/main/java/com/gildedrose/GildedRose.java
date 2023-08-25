@@ -1,8 +1,6 @@
 package com.gildedrose;
 
 import java.util.Arrays;
-import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 class GildedRose {
@@ -19,7 +17,7 @@ class GildedRose {
     private void updateItem(Item item) {
         // Get the item type from the stream of enum values or use the default one
         ItemType itemType = Arrays.stream(ItemType.values())
-                .filter(it -> it.matches().test(item.name))
+                .filter(it -> it.matches(item.name))
                 .findFirst()
                 .orElse(ItemType.Other);
         // Update the item using the item type behaviour
@@ -64,7 +62,7 @@ enum ItemType {
             item.sellIn--;
         }
     },
-    Other(".*") {
+    Other("other") {
         @Override
         public void update(Item item) {
             // Decrease the quality by 1 or 2 depending on the sell in value
@@ -85,9 +83,9 @@ enum ItemType {
     //An abstract method that each enum constant must implement
     public abstract void update(Item item);
 
-    // A method that returns a predicate that checks if an item name matches the regex name of the enum constant
-    public Predicate<String> matches() {
-        return itemName -> Pattern.matches(name, itemName);
+    // A method that returns a boolean that checks if an item name matches the regex name of the enum constant
+    public boolean matches(String itemName) {
+        return name.equals(itemName);
     }
 
     private static int coerce(int min, int max, int value) {
