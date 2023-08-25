@@ -20,7 +20,7 @@ public class TextFixtureTest {
 
     @Test
     public void testFiftyDays() throws IOException {
-        String expected = readFile("original_50.txt");
+        String expected = readFile("output_50.txt");
         String actual = runFixture(50);
         assertEquals(expected, actual);
     }
