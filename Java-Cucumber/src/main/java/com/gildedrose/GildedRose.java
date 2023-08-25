@@ -18,23 +18,19 @@ class GildedRose {
 
     private void updateItem(Item item) {
         Optional.of(item)
-                .filter(isSulfuras().negate())
-                .ifPresent(this::decreaseSellIn);
-
-        Optional.of(item)
                 .filter(isSulfuras())
                 .ifPresent(this::updateSulfuras);
 
         Optional.of(item)
-                .filter(isAgedBrie())
+                .filter(isAgedBrie().and(isSulfuras().negate()))
                 .ifPresent(this::updateAgedBrie);
 
         Optional.of(item)
-                .filter(isBackstagePasses())
+                .filter(isBackstagePasses().and(isSulfuras().negate()))
                 .ifPresent(this::updateBackstagePasses);
 
         Optional.of(item)
-                .filter(isOtherItem())
+                .filter(isOtherItem().and(isSulfuras().negate()))
                 .ifPresent(this::updateOtherItem);
     }
 
@@ -95,6 +91,7 @@ class GildedRose {
                 increaseQuality(item);
             }
         }
+        decreaseSellIn(item);
     }
 
     private void updateBackstagePasses(Item item) {
@@ -104,6 +101,7 @@ class GildedRose {
                 item.quality = 0;
             }
         }
+        decreaseSellIn(item);
     }
 
     private void updateOtherItem(Item item) {
@@ -113,5 +111,6 @@ class GildedRose {
                 decreaseQuality(item);
             }
         }
+        decreaseSellIn(item);
     }
 }
