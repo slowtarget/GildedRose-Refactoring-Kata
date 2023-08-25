@@ -18,13 +18,13 @@ class GildedRose {
 
     private void updateItem(Item item) {
         Optional.of(item)
-                .filter(not(isSulfuras()))
+                .filter(isSulfuras().negate())
                 .ifPresent(this::decreaseSellIn);
 
         Optional.of(item)
-                .filter(not(isSulfuras()))
-                .filter(not(isAgedBrie()))
-                .filter(not(isBackstagePasses()))
+                .filter(isSulfuras().negate())
+                .filter(isAgedBrie().negate())
+                .filter(isBackstagePasses().negate())
                 .filter(hasPositiveQuality())
                 .ifPresent(this::decreaseQuality);
 
@@ -39,10 +39,10 @@ class GildedRose {
                 .ifPresent(this::increaseQualityByBackstageRules);
 
         Optional.of(item)
-                .filter(not(isSulfuras()))
+                .filter(isSulfuras().negate())
                 .filter(i -> i.sellIn < 0)
-                .filter(not(isAgedBrie()))
-                .filter(not(isBackstagePasses()))
+                .filter(isAgedBrie().negate())
+                .filter(isBackstagePasses().negate())
                 .filter(hasPositiveQuality())
                 .ifPresent(this::decreaseQuality);
 
@@ -98,10 +98,5 @@ class GildedRose {
         if (item.sellIn < 6) {
             increaseQuality(item);
         }
-    }
-
-    // A helper method that returns the negation of a predicate
-    private static <T> Predicate<T> not(Predicate<T> predicate) {
-        return predicate.negate();
     }
 }
