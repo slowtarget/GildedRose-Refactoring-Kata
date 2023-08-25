@@ -33,6 +33,9 @@ class GildedRose {
 // An interface that defines the behaviour of different item types
 interface ItemType {
     void update(Item item);
+    default int coerce(int min, int max, int value) {
+        return Math.min(max, Math.max(min, value));
+    }
 }
 
 // A class that implements the behaviour of sulfuras items
@@ -50,7 +53,7 @@ class AgedBrie implements ItemType {
     @Override
     public void update(Item item) {
         // Increase the quality by 1 or 2 depending on the sell in value
-        item.quality = Math.coerce(0, 50, item.quality + (item.sellIn < 0 ? 2 : 1));
+        item.quality = coerce(0, 50, item.quality + (item.sellIn <= 0 ? 2 : 1));
         // Decrease the sell in value by 1
         item.sellIn--;
     }
@@ -73,7 +76,7 @@ class BackstagePasses implements ItemType {
             item.quality = 0;
         }
         // Coerce the quality to be between 0 and 50
-        item.quality = Math.coerce(0, 50, item.quality);
+        item.quality = coerce(0, 50, item.quality);
         // Decrease the sell in value by 1
         item.sellIn--;
     }
@@ -85,7 +88,7 @@ class OtherItem implements ItemType {
     @Override
     public void update(Item item) {
         // Decrease the quality by 1 or 2 depending on the sell in value
-        item.quality = Math.coerce(0, 50, item.quality - (item.sellIn < 0 ? 2 : 1));
+        item.quality = coerce(0, 50, item.quality - (item.sellIn <= 0 ? 2 : 1));
         // Decrease the sell in value by 1
         item.sellIn--;
     }
