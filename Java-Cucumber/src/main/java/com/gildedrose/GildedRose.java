@@ -50,24 +50,16 @@ class GildedRose {
         return item -> !isSulfuras().test(item) && !isAgedBrie().test(item) && !isBackstagePasses().test(item);
     }
 
-    private Predicate<Item> hasPositiveQuality() {
-        return item -> item.quality > 0;
-    }
-
-    private Predicate<Item> hasQualityBelow50() {
-        return item -> item.quality < 50;
-    }
-
     private void decreaseSellIn(Item item) {
         item.sellIn--;
     }
 
     private void decreaseQuality(Item item) {
-        item.quality--;
+        item.quality = Math.coerce(0, 50, item.quality - 1);
     }
 
     private void increaseQuality(Item item) {
-        item.quality++;
+        item.quality = Math.coerce(0, 50, item.quality + 1);
     }
 
     private void increaseQualityByBackstageRules(Item item) {
@@ -85,31 +77,25 @@ class GildedRose {
     }
 
     private void updateAgedBrie(Item item) {
-        if (hasQualityBelow50().test(item)) {
+        increaseQuality(item);
+        if (item.sellIn < 0) {
             increaseQuality(item);
-            if (item.sellIn < 0 && hasQualityBelow50().test(item)) {
-                increaseQuality(item);
-            }
         }
         decreaseSellIn(item);
     }
 
     private void updateBackstagePasses(Item item) {
-        if (hasQualityBelow50().test(item)) {
-            increaseQualityByBackstageRules(item);
-            if (item.sellIn < 0) {
-                item.quality = 0;
-            }
+        increaseQualityByBackstageRules(item);
+        if (item.sellIn < 0) {
+            item.quality = 0;
         }
         decreaseSellIn(item);
     }
 
     private void updateOtherItem(Item item) {
-        if (hasPositiveQuality().test(item)) {
+        decreaseQuality(item);
+        if (item.sellIn < 0) {
             decreaseQuality(item);
-            if (item.sellIn < 0 && hasPositiveQuality().test(item)) {
-                decreaseQuality(item);
-            }
         }
         decreaseSellIn(item);
     }
