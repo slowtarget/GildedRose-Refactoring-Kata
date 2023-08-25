@@ -2,6 +2,7 @@ package com.gildedrose;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 class GildedRose {
     Item[] items;
@@ -17,7 +18,7 @@ class GildedRose {
     private void updateItem(Item item) {
         // Get the item type from the stream of enum values or use the default one
         ItemType itemType = Arrays.stream(ItemType.values())
-                .filter(it -> it.name().equals(item.name))
+                .filter(it -> it.matches(item.name))
                 .findFirst()
                 .orElse(ItemType.Other);
         // Update the item using the item type behaviour
@@ -27,22 +28,22 @@ class GildedRose {
 
 // An enum that defines the behaviour of different item types
 enum ItemType {
-    Sulfuras {
+    Sulfuras("Sulfuras, Hand of Ragnaros") {
         @Override
         public void update(Item item) {
             // Do nothing, sulfuras never changes
         }
     },
-    AgedBrie {
+    AgedBrie("Aged Brie") {
         @Override
         public void update(Item item) {
             // Increase the quality by 1 or 2 depending on the sell in value
-            item.quality = coerce(0, 50, item.quality + (item.sellIn < 0 ? 2 : 1));
+            item.quality = coerce(0, 50, item.quality + (item.sellIn <= 0 ? 2 : 1));
             // Decrease the sell in value by 1
             item.sellIn--;
         }
     },
-    BackstagePasses {
+    BackstagePasses("Backstage passes to a TAFKAL80ETC concert") {
         @Override
         public void update(Item item) {
             // Increase the quality by 1, 2, or 3 depending on the sell in value
@@ -62,11 +63,11 @@ enum ItemType {
             item.sellIn--;
         }
     },
-    Other {
+    Other(".*") {
         @Override
         public void update(Item item) {
             // Decrease the quality by 1 or 2 depending on the sell in value
-            item.quality = coerce(0, 50, item.quality - (item.sellIn < 0 ? 2 : 1));
+            item.quality = coerce(0, 50, item.quality - (item.sellIn <= 0 ? 2 : 1));
             // Decrease the sell in value by 1
             item.sellIn--;
         }
@@ -74,8 +75,19 @@ enum ItemType {
 
     };
 
+    private String name; // The regex name of the item type
+
+    private ItemType(String name) {
+        this.name = name;
+    }
+
     //An abstract method that each enum constant must implement
     public abstract void update(Item item);
+
+    // A method that checks if an item name matches the regex name of the enum constant
+    public boolean matches(String itemName) {
+        return Pattern.matches(name, itemName);
+    }
 
     private static int coerce(int min, int max, int value) {
         return Math.max(min, Math.min(max, value));
