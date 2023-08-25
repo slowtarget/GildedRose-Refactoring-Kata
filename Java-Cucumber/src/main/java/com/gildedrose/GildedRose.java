@@ -1,6 +1,7 @@
 package com.gildedrose;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 class GildedRose {
     Item[] items;
@@ -14,8 +15,11 @@ class GildedRose {
     }
 
     private void updateItem(Item item) {
-        // Get the item type from the enum or use the default one
-        ItemType itemType = ItemType.valueOf(item.name).orElse(ItemType.Other);
+        // Get the item type from the stream of enum values or use the default one
+        ItemType itemType = Arrays.stream(ItemType.values())
+                .filter(it -> it.name().equals(item.name))
+                .findFirst()
+                .orElse(ItemType.Other);
         // Update the item using the item type behaviour
         itemType.update(item);
     }
@@ -33,7 +37,7 @@ enum ItemType {
         @Override
         public void update(Item item) {
             // Increase the quality by 1 or 2 depending on the sell in value
-            item.quality = Math.coerce(0, 50, item.quality + (item.sellIn < 0 ? 2 : 1));
+            item.quality = coerce(0, 50, item.quality + (item.sellIn < 0 ? 2 : 1));
             // Decrease the sell in value by 1
             item.sellIn--;
         }
@@ -53,7 +57,7 @@ enum ItemType {
                 item.quality = 0;
             }
             // Coerce the quality to be between 0 and 50
-            item.quality = Math.coerce(0, 50, item.quality);
+            item.quality = coerce(0, 50, item.quality);
             // Decrease the sell in value by 1
             item.sellIn--;
         }
@@ -62,21 +66,18 @@ enum ItemType {
         @Override
         public void update(Item item) {
             // Decrease the quality by 1 or 2 depending on the sell in value
-            item.quality = Math.coerce(0, 50, item.quality - (item.sellIn < 0 ? 2 : 1));
+            item.quality = coerce(0, 50, item.quality - (item.sellIn < 0 ? 2 : 1));
             // Decrease the sell in value by 1
             item.sellIn--;
         }
+
+
     };
 
-    // An abstract method that each enum constant must implement
+    //An abstract method that each enum constant must implement
     public abstract void update(Item item);
 
-    // A static method that returns an optional enum constant from a string name
-    public static Optional<ItemType> valueOf(String name) {
-        try {
-            return Optional.of(Enum.valueOf(ItemType.class, name));
-        } catch (IllegalArgumentException e) {
-            return Optional.empty();
-        }
+    private static int coerce(int min, int max, int value) {
+        return Math.max(min, Math.min(max, value));
     }
 }
