@@ -1,7 +1,6 @@
 package com.gildedrose;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 class GildedRose {
     Item[] items;
@@ -11,29 +10,35 @@ class GildedRose {
     }
 
     public void updateQuality() {
-        Arrays.stream(items).forEach(this::updateItem);
-    }
-
-    private void updateItem(Item item) {
-        // Get the item type from the stream of enum values or use the default one
-        ItemType itemType = Arrays.stream(ItemType.values())
-                .filter(it -> it.matches(item.name))
-                .findFirst()
-                .orElse(ItemType.Other);
-        // Update the item using the item type behaviour
-        itemType.update(item);
+        Arrays.stream(items).forEach(item -> ItemType.handleusingchain(item));
     }
 }
 
 // An enum that defines the behaviour of different item types
 enum ItemType {
-    Sulfuras("Sulfuras, Hand of Ragnaros") {
+    Sulfuras {
         @Override
         public void update(Item item) {
             // Do nothing, sulfuras never changes
         }
+
+        @Override
+        public boolean matches(Item item) {
+            return item.name.equals("Sulfuras, Hand of Ragnaros");
+        }
+
+        @Override
+        public void handle(Item item) {
+           if (matches(item)) {
+               update(item);
+           } else {
+               AgedBrie.handle(item);
+           }
+        }
+
+
     },
-    AgedBrie("Aged Brie") {
+    AgedBrie {
         @Override
         public void update(Item item) {
             // Increase the quality by 1 or 2 depending on the sell in value
@@ -41,8 +46,22 @@ enum ItemType {
             // Decrease the sell in value by 1
             item.sellIn--;
         }
+
+        @Override
+        public boolean matches(Item item) {
+            return item.name.equals("Aged Brie");
+        }
+
+        @Override
+        public void handle(Item item) {
+            if (matches(item)) {
+                update(item);
+            } else {
+                BackstagePasses.handle(item);
+            }
+        }
     },
-    BackstagePasses("Backstage passes to a TAFKAL80ETC concert") {
+    BackstagePasses {
         @Override
         public void update(Item item) {
             // Increase the quality by 1, 2, or 3 depending on the sell in value
@@ -61,8 +80,22 @@ enum ItemType {
             // Decrease the sell in value by 1
             item.sellIn--;
         }
+
+        @Override
+        public boolean matches(Item item) {
+            return item.name.equals("Backstage passes to a TAFKAL80ETC concert");
+        }
+
+        @Override
+        public void handle(Item item) {
+            if (matches(item)) {
+                update(item);
+            } else {
+                Other.handle(item);
+            }
+        }
     },
-    Other("other") {
+    Other {
         @Override
         public void update(Item item) {
             // Decrease the quality by 1 or 2 depending on the sell in value
@@ -71,24 +104,30 @@ enum ItemType {
             item.sellIn--;
         }
 
+        @Override
+        public boolean matches(Item item) {
+            return true;
+        }
 
+        @Override
+        public void handle(Item item) {
+            update(item);
+        }
     };
 
-    private String name; // The regex name of the item type
-
-    private ItemType(String name) {
-        this.name = name;
+    public static void handleusingchain(Item item) {
+        Sulfuras.handle(item);
     }
 
     //An abstract method that each enum constant must implement
     public abstract void update(Item item);
 
-    // A method that returns a boolean that checks if an item name matches the regex name of the enum constant
-    public boolean matches(String itemName) {
-        return name.equals(itemName);
-    }
+    // An abstract method that each enum constant must implement to return a boolean that checks if an item matches the enum constant
+    public abstract boolean matches(Item item);
 
     private static int coerce(int min, int max, int value) {
         return Math.max(min, Math.min(max, value));
     }
+
+    public abstract void handle(Item item);
 }
