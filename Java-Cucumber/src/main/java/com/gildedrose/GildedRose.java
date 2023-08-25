@@ -22,40 +22,20 @@ class GildedRose {
                 .ifPresent(this::decreaseSellIn);
 
         Optional.of(item)
-                .filter(isSulfuras().negate())
-                .filter(isAgedBrie().negate())
-                .filter(isBackstagePasses().negate())
-                .filter(hasPositiveQuality())
-                .ifPresent(this::decreaseQuality);
+                .filter(isSulfuras())
+                .ifPresent(this::updateSulfuras);
 
         Optional.of(item)
                 .filter(isAgedBrie())
-                .filter(hasQualityBelow50())
-                .ifPresent(this::increaseQuality);
+                .ifPresent(this::updateAgedBrie);
 
         Optional.of(item)
                 .filter(isBackstagePasses())
-                .filter(hasQualityBelow50())
-                .ifPresent(this::increaseQualityByBackstageRules);
+                .ifPresent(this::updateBackstagePasses);
 
         Optional.of(item)
-                .filter(isSulfuras().negate())
-                .filter(i -> i.sellIn < 0)
-                .filter(isAgedBrie().negate())
-                .filter(isBackstagePasses().negate())
-                .filter(hasPositiveQuality())
-                .ifPresent(this::decreaseQuality);
-
-        Optional.of(item)
-                .filter(i -> i.sellIn < 0)
-                .filter(isAgedBrie())
-                .filter(hasQualityBelow50())
-                .ifPresent(this::increaseQuality);
-
-        Optional.of(item)
-                .filter(i -> i.sellIn < 0)
-                .filter(isBackstagePasses())
-                .ifPresent(i -> i.quality = 0);
+                .filter(isOtherItem())
+                .ifPresent(this::updateOtherItem);
     }
 
     private Predicate<Item> isSulfuras() {
@@ -68,6 +48,10 @@ class GildedRose {
 
     private Predicate<Item> isBackstagePasses() {
         return item -> item.name.equals("Backstage passes to a TAFKAL80ETC concert");
+    }
+
+    private Predicate<Item> isOtherItem() {
+        return item -> !isSulfuras().test(item) && !isAgedBrie().test(item) && !isBackstagePasses().test(item);
     }
 
     private Predicate<Item> hasPositiveQuality() {
@@ -97,6 +81,37 @@ class GildedRose {
         }
         if (item.sellIn < 6) {
             increaseQuality(item);
+        }
+    }
+
+    private void updateSulfuras(Item item) {
+        // Do nothing, sulfuras never changes
+    }
+
+    private void updateAgedBrie(Item item) {
+        if (hasQualityBelow50().test(item)) {
+            increaseQuality(item);
+            if (item.sellIn < 0 && hasQualityBelow50().test(item)) {
+                increaseQuality(item);
+            }
+        }
+    }
+
+    private void updateBackstagePasses(Item item) {
+        if (hasQualityBelow50().test(item)) {
+            increaseQualityByBackstageRules(item);
+            if (item.sellIn < 0) {
+                item.quality = 0;
+            }
+        }
+    }
+
+    private void updateOtherItem(Item item) {
+        if (hasPositiveQuality().test(item)) {
+            decreaseQuality(item);
+            if (item.sellIn < 0 && hasPositiveQuality().test(item)) {
+                decreaseQuality(item);
+            }
         }
     }
 }
