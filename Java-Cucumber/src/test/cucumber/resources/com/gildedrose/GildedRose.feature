@@ -59,3 +59,20 @@ Feature: Gilded Rose quality
       | Backstage passes to a TAFKAL80ETC concert | 5       | 50       | 4       | 50       |
       | Backstage passes to a TAFKAL80ETC concert | 1       | 50       | 0       | 50       |
       | Backstage passes to a TAFKAL80ETC concert | 0       | 50       | -1      | 0        |
+
+    Examples: "Conjured" items degrade in Quality twice as fast as normal items
+      | name               | iSellin | iQuality | eSellin | eQuality |
+      | Conjured Mana Cake | 10      | 10       | 9       | 8        |
+      | Conjured Mana Cake | -10     | 1        | -11     | 0        |
+      | Conjured Mana Cake | -10     | 2        | -11     | 0        |
+      | Conjured Mana Cake | -10     | 3        | -11     | 0        |
+      | Conjured Mana Cake | -10     | 4        | -11     | 0        |
+      | Conjured Mana Cake | -10     | 5        | -11     | 1        |
+      | Conjured Mana Cake | 2       | 10       | 1       | 8        |
+      | Conjured Mana Cake | 1       | 8        | 0       | 6        |
+      | Conjured Mana Cake | 0       | 6        | -1      | 2        |
+      | Conjured Mana Cake | -1      | 2        | -2      | 0        |
+      | Conjured Mana Cake | 2       | 11       | 1       | 9        |
+      | Conjured Mana Cake | 1       | 9        | 0       | 7        |
+      | Conjured Mana Cake | 0       | 7        | -1      | 3        |
+      | Conjured Mana Cake | -1      | 3        | -2      | 0        |
